@@ -9,13 +9,14 @@
 
 import { Timestamp } from "firebase-admin/firestore";
 import { db, getCustomerId } from "../lib/config.js";
+import { fetchFromConsole, isApiMode } from "../lib/client.js";
 import type { Board, Post } from "../types.js";
 
 
 /**
  * 공개 게시판 목록 조회 (active + public만)
  */
-export async function fetchBoards(): Promise<Board[]> {
+async function directFetchBoards(): Promise<Board[]> {
   const snap = await db()
     .collection("customers")
     .doc(getCustomerId())
@@ -40,7 +41,7 @@ export async function fetchBoards(): Promise<Board[]> {
 /**
  * slug로 게시판 조회 (active + public만)
  */
-export async function fetchBoardBySlug(
+async function directFetchBoardBySlug(
   slug: string
 ): Promise<(Board & { boardId: string }) | null> {
   const snap = await db()
@@ -68,7 +69,7 @@ export async function fetchBoardBySlug(
 /**
  * 게시글 목록 조회 (published만)
  */
-export async function fetchPosts(
+async function directFetchPosts(
   boardId: string
 ): Promise<Post[]> {
   const snap = await db()
@@ -88,7 +89,7 @@ export async function fetchPosts(
 /**
  * 게시글 단건 조회 (published만)
  */
-export async function fetchPost(
+async function directFetchPost(
   boardId: string,
   postId: string
 ): Promise<Post | null> {
@@ -142,4 +143,27 @@ function serializePost(
       : null,
     createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
   };
+}
+
+// ── 공개 함수: 콘솔 API 경유, 미설정 시 Firebase 직접 접근 ──
+
+export async function fetchBoards(): Promise<Board[]> {
+  if (!isApiMode()) return directFetchBoards();
+  const r = await fetchFromConsole<{ boards: Board[] }>({ resource: "boards" });
+  return r?.boards ?? [];
+}
+export async function fetchBoardBySlug(slug: string): Promise<Board | null> {
+  if (!isApiMode()) return directFetchBoardBySlug(slug);
+  const r = await fetchFromConsole<{ board: Board | null }>({ resource: "board", slug: String(slug) });
+  return r?.board ?? null;
+}
+export async function fetchPosts(boardId: string): Promise<Post[]> {
+  if (!isApiMode()) return directFetchPosts(boardId);
+  const r = await fetchFromConsole<{ posts: Post[] }>({ resource: "posts", boardId: String(boardId) });
+  return r?.posts ?? [];
+}
+export async function fetchPost(boardId: string, postId: string): Promise<Post | null> {
+  if (!isApiMode()) return directFetchPost(boardId, postId);
+  const r = await fetchFromConsole<{ post: Post | null }>({ resource: "post", boardId: String(boardId), postId: String(postId) });
+  return r?.post ?? null;
 }

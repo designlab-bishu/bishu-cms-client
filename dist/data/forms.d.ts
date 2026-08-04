@@ -8,10 +8,6 @@
  */
 import type { Form } from "../types.js";
 /**
- * slug로 폼 조회 (active만)
- */
-export declare function fetchFormBySlug(slug: string): Promise<Form | null>;
-/**
  * 폼 제출 생성
  */
 export declare function createSubmission(formId: string, values: Record<string, unknown>, meta?: {
@@ -19,3 +15,4 @@ export declare function createSubmission(formId: string, values: Record<string, 
     referrer?: string;
     userAgent?: string;
 }): Promise<string>;
+export declare function fetchFormBySlug(slug: string): Promise<Form | null>;

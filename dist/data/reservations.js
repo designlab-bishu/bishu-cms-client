@@ -7,11 +7,12 @@
  */
 import { Timestamp } from "firebase-admin/firestore";
 import { db, getCustomerId } from "../lib/config.js";
+import { fetchFromConsole, isApiMode } from "../lib/client.js";
 import { maskName } from "../lib/mask.js";
 /**
  * 특정 월의 예약 목록 조회 (confirmed만, 마스킹 처리)
  */
-export async function fetchReservationsByMonth(year, month) {
+async function directFetchReservationsByMonth(year, month) {
     const start = Timestamp.fromDate(new Date(year, month - 1, 1));
     const end = Timestamp.fromDate(new Date(year, month, 1));
     const snap = await db()
@@ -43,10 +44,23 @@ export async function fetchReservationsByMonth(year, month) {
 /**
  * 특정 날짜의 예약 목록 조회
  */
-export async function fetchReservationsByDate(dateStr) {
+async function directFetchReservationsByDate(dateStr) {
     const date = new Date(dateStr);
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
-    const all = await fetchReservationsByMonth(year, month);
+    const all = await directFetchReservationsByMonth(year, month);
     return all.filter((r) => r.date.startsWith(dateStr));
+}
+// ── 공개 함수: 콘솔 API 경유, 미설정 시 Firebase 직접 접근 ──
+export async function fetchReservationsByMonth(year, month) {
+    if (!isApiMode())
+        return directFetchReservationsByMonth(year, month);
+    const r = await fetchFromConsole({ resource: "reservations", year: String(year), month: String(month) });
+    return r?.reservations ?? [];
+}
+export async function fetchReservationsByDate(date) {
+    if (!isApiMode())
+        return directFetchReservationsByDate(date);
+    const r = await fetchFromConsole({ resource: "reservations", date: String(date) });
+    return r?.reservations ?? [];
 }

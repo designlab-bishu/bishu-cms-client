@@ -8,10 +8,11 @@
  */
 import { Timestamp, FieldValue } from "firebase-admin/firestore";
 import { db, getCustomerId } from "../lib/config.js";
+import { fetchFromConsole, isApiMode } from "../lib/client.js";
 /**
  * slug로 폼 조회 (active만)
  */
-export async function fetchFormBySlug(slug) {
+async function directFetchFormBySlug(slug) {
     const snap = await db()
         .collection("customers")
         .doc(getCustomerId())
@@ -97,4 +98,11 @@ export async function createSubmission(formId, values, meta) {
         updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
     return docRef.id;
+}
+// ── 공개 함수: 콘솔 API 경유, 미설정 시 Firebase 직접 접근 ──
+export async function fetchFormBySlug(slug) {
+    if (!isApiMode())
+        return directFetchFormBySlug(slug);
+    const r = await fetchFromConsole({ resource: "form", slug: String(slug) });
+    return r?.form ?? null;
 }

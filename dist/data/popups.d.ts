@@ -5,9 +5,4 @@
  * Firestore 경로: customers/{customerId}/popups/{popupId}
  */
 import type { Popup } from "../types.js";
-/**
- * 현재 활성 팝업 목록 조회
- * - status === "active"
- * - 현재 시각이 startDate ~ endDate 사이
- */
 export declare function fetchActivePopups(): Promise<Popup[]>;

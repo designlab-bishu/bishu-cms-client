@@ -6,12 +6,13 @@
  */
 import { Timestamp } from "firebase-admin/firestore";
 import { db, getCustomerId } from "../lib/config.js";
+import { fetchFromConsole, isApiMode } from "../lib/client.js";
 /**
  * 현재 활성 팝업 목록 조회
  * - status === "active"
  * - 현재 시각이 startDate ~ endDate 사이
  */
-export async function fetchActivePopups() {
+async function directFetchActivePopups() {
     try {
         const now = Timestamp.now();
         const snap = await db()
@@ -47,4 +48,11 @@ export async function fetchActivePopups() {
         console.error("Failed to fetch popups:", err);
         return [];
     }
+}
+// ── 공개 함수: 콘솔 API 경유, 미설정 시 Firebase 직접 접근 ──
+export async function fetchActivePopups() {
+    if (!isApiMode())
+        return directFetchActivePopups();
+    const r = await fetchFromConsole({ resource: "popups" });
+    return r?.popups ?? [];
 }

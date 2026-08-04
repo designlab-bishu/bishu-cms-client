@@ -9,13 +9,14 @@
 
 import { Timestamp, FieldValue } from "firebase-admin/firestore";
 import { db, getCustomerId } from "../lib/config.js";
+import { fetchFromConsole, isApiMode } from "../lib/client.js";
 import type { Form, FormField } from "../types.js";
 
 
 /**
  * slug로 폼 조회 (active만)
  */
-export async function fetchFormBySlug(
+async function directFetchFormBySlug(
   slug: string
 ): Promise<Form | null> {
   const snap = await db()
@@ -134,4 +135,12 @@ export async function createSubmission(
     );
 
   return docRef.id;
+}
+
+// ── 공개 함수: 콘솔 API 경유, 미설정 시 Firebase 직접 접근 ──
+
+export async function fetchFormBySlug(slug: string): Promise<Form | null> {
+  if (!isApiMode()) return directFetchFormBySlug(slug);
+  const r = await fetchFromConsole<{ form: Form | null }>({ resource: "form", slug: String(slug) });
+  return r?.form ?? null;
 }
