@@ -20,6 +20,7 @@ export { fetchReservationsByMonth, fetchReservationsByDate, } from "./data/reser
 export { createSubmission } from "./actions/submit.js";
 export { uploadFormFiles } from "./actions/upload.js";
 export { trackPopupEvent, incrementPostViewCount } from "./actions/track.js";
+export { getAttachmentUrl } from "./actions/download.js";
 // ── 유틸 ──────────────────────────────────────────────
 export { sanitizeCmsHtml } from "./lib/sanitize.js";
 export { maskName } from "./lib/mask.js";
