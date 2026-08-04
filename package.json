@@ -1,6 +1,6 @@
 {
   "name": "@designlab-bishu/cms-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "고객사 사이트가 BISHU 클라이언트 콘솔(CMS)에 연결하기 위한 배관 계층",
   "license": "UNLICENSED",
   "private": false,
@@ -19,8 +19,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "prepublishOnly": "npm run build",
-    "prepare": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "firebase-admin": "^13.0.0"
