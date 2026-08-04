@@ -81,3 +81,50 @@ export async function fetchFromConsole(params) {
         clearTimeout(timer);
     }
 }
+/**
+ * 콘솔의 쓰기 API 를 호출한다.
+ *
+ * 조회와 달리 **실패를 숨기지 않는다.** 폼 제출이 조용히 실패하면 고객 문의가
+ * 유실되므로, 호출부가 사용자에게 알릴 수 있도록 null 대신 사유를 돌려준다.
+ */
+export async function postToConsole(body) {
+    let baseUrl;
+    let apiKey;
+    let customerId;
+    try {
+        baseUrl = requireEnv("CMS_API_URL").replace(/\/+$/, "");
+        apiKey = requireEnv("CMS_API_KEY");
+        customerId = getCustomerId();
+    }
+    catch (err) {
+        console.error(err instanceof Error ? err.message : err);
+        return { ok: false, reason: "config_error" };
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+        const res = await fetch(`${baseUrl}/api/public/content`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${apiKey}`,
+                "X-Customer-Id": customerId,
+            },
+            body: JSON.stringify(body),
+            signal: controller.signal,
+        });
+        if (!res.ok) {
+            const text = await res.text().catch(() => "");
+            console.error(`[cms-client] 쓰기 실패 ${res.status} (${body.action}): ${text.slice(0, 200)}`);
+            return { ok: false, reason: `http_${res.status}` };
+        }
+        return { ok: true, data: (await res.json()) };
+    }
+    catch (err) {
+        console.error(`[cms-client] 쓰기 호출 실패 (${body.action}):`, err);
+        return { ok: false, reason: "network_error" };
+    }
+    finally {
+        clearTimeout(timer);
+    }
+}

@@ -22,3 +22,16 @@ export declare function isApiMode(): boolean;
  * 설정 오류(환경변수 누락·인증 실패)는 로그로 분명히 남긴다.
  */
 export declare function fetchFromConsole<T>(params: Record<string, string>): Promise<T | null>;
+/**
+ * 콘솔의 쓰기 API 를 호출한다.
+ *
+ * 조회와 달리 **실패를 숨기지 않는다.** 폼 제출이 조용히 실패하면 고객 문의가
+ * 유실되므로, 호출부가 사용자에게 알릴 수 있도록 null 대신 사유를 돌려준다.
+ */
+export declare function postToConsole<T>(body: Record<string, unknown>): Promise<{
+    ok: true;
+    data: T;
+} | {
+    ok: false;
+    reason: string;
+}>;

@@ -4,15 +4,20 @@
  */
 import { Timestamp, FieldValue } from "firebase-admin/firestore";
 import { db, getCustomerId } from "../lib/config.js";
-export async function createSubmission(formId, values, meta) {
-    const formDoc = await db()
+import { postToConsole, isApiMode } from "../lib/client.js";
+async function directCreateSubmission(formSlug, values, meta) {
+    const formQuery = await db()
         .collection("customers")
         .doc(getCustomerId())
         .collection("forms")
-        .doc(formId)
+        .where("slug", "==", formSlug)
+        .where("status", "==", "active")
+        .limit(1)
         .get();
-    // 제출 시점의 필드 스냅샷 생성
-    const formData = formDoc.data();
+    if (formQuery.empty)
+        throw new Error("form_not_active");
+    const formData = formQuery.docs[0].data();
+    const formId = formData.formId ?? formQuery.docs[0].id;
     const fieldsSnapshot = (formData?.fields ?? [])
         .map((f) => ({
         id: f.id,
@@ -51,4 +56,25 @@ export async function createSubmission(formId, values, meta) {
         updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
     return docRef.id;
+}
+/**
+ * 폼 제출.
+ *
+ * 폼은 **슬러그로 조회**한다. 사이트가 보낸 문서 ID 를 그대로 쓰면 임의 경로에
+ * 쓰게 되므로(2026-08-03 studio-bishu 사례), 서버가 조회한 값만 사용한다.
+ *
+ * 실패 시 예외를 던진다 — 조용히 실패하면 고객 문의가 유실된다.
+ */
+export async function createSubmission(formSlug, values, meta) {
+    if (!isApiMode())
+        return directCreateSubmission(formSlug, values, meta);
+    const res = await postToConsole({
+        action: "submit",
+        formSlug,
+        values,
+        meta,
+    });
+    if (!res.ok)
+        throw new Error(`submission_failed:${res.reason}`);
+    return res.data.submissionId;
 }

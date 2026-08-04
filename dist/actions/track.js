@@ -6,7 +6,8 @@
  */
 import { FieldValue } from "firebase-admin/firestore";
 import { db, getCustomerId } from "../lib/config.js";
-export async function trackPopupEvent(eventType) {
+import { postToConsole, isApiMode } from "../lib/client.js";
+async function directTrackPopupEvent(eventType) {
     const todayStr = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" });
     const today = todayStr.replace(/-/g, "");
     const field = eventType === "impression"
@@ -23,10 +24,28 @@ export async function trackPopupEvent(eventType) {
         updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
 }
-export async function incrementPostViewCount(boardId, postId) {
+async function directIncrementPostViewCount(boardId, postId) {
     await db()
         .doc(`customers/${getCustomerId()}/boards/${boardId}/posts/${postId}`)
         .update({
         "stats.viewCount": FieldValue.increment(1),
     });
+}
+/**
+ * 사용량 집계는 **실패해도 예외를 던지지 않는다.**
+ * 통계 기록 실패로 방문자 화면이 깨지면 안 된다.
+ */
+export async function trackPopupEvent(eventType) {
+    if (!isApiMode()) {
+        await directTrackPopupEvent(eventType).catch((e) => console.error("[cms-client] 팝업 집계 실패:", e));
+        return;
+    }
+    await postToConsole({ action: "trackPopup", eventType });
+}
+export async function incrementPostViewCount(boardId, postId) {
+    if (!isApiMode()) {
+        await directIncrementPostViewCount(boardId, postId).catch((e) => console.error("[cms-client] 조회수 집계 실패:", e));
+        return;
+    }
+    await postToConsole({ action: "viewPost", boardId, postId });
 }

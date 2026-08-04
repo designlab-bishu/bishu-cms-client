@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { db, bucket, getCustomerId } from "../lib/config.js";
+import { postToConsole, isApiMode } from "../lib/client.js";
 /**
  * 브라우저에서 실행 가능한 타입(HTML/JS/SVG 등)을 배제한 화이트리스트.
  * console/storage.rules 의 isAllowedAttachment() 와 동일한 기준을 유지할 것.
@@ -51,7 +52,7 @@ function matchesAccept(accept, fileName, contentType) {
  * 익명 방문자가 직접 호출할 수 있는 경로이므로 서버에서 전부 재검증한다.
  * 클라이언트 검증(FileFieldInput)은 UX 용도일 뿐 신뢰하지 않는다.
  */
-export async function uploadFormFiles(formData) {
+async function directUploadFormFiles(formData) {
     const customerId = getCustomerId();
     try {
         const formId = formData.get("formId");
@@ -129,4 +130,59 @@ export async function uploadFormFiles(formData) {
         console.error("File upload error:", error);
         return { success: false, error: "파일 업로드에 실패했습니다." };
     }
+}
+/**
+ * 폼 첨부 업로드.
+ *
+ * API 모드에서는 콘솔이 **검증과 경로 결정만** 하고 서명 URL 을 발급한다.
+ * 파일 자체는 콘솔을 통과하지 않는다 — Vercel 요청 본문 한도(4.5MB)에 걸리고,
+ * 콘솔이 대용량 전송을 중계할 이유도 없다.
+ *
+ * @param formSlug 폼 슬러그. 문서 ID·필드 ID 는 콘솔이 조회해서 정한다.
+ */
+export async function uploadFormFiles(formData) {
+    if (!isApiMode())
+        return directUploadFormFiles(formData);
+    const formSlug = formData.get("formId") || "";
+    const rawFiles = formData.getAll("files");
+    if (!formSlug || rawFiles.length === 0) {
+        return { success: false, error: "필수 데이터가 누락되었습니다." };
+    }
+    const uploaded = [];
+    for (const file of rawFiles) {
+        const issued = await postToConsole({
+            action: "uploadUrl",
+            formSlug,
+            fileName: file.name,
+            contentType: file.type,
+            size: file.size,
+        });
+        if (!issued.ok) {
+            // 콘솔이 거부한 사유를 사용자에게 이해 가능한 문구로 바꾼다.
+            const reason = issued.reason;
+            if (reason.includes("file_too_large")) {
+                return { success: false, error: "파일 크기가 허용 범위를 초과했습니다." };
+            }
+            if (reason.includes("content_type_not_allowed")) {
+                return { success: false, error: "허용되지 않는 파일 형식입니다." };
+            }
+            return { success: false, error: "파일 업로드에 실패했습니다." };
+        }
+        const put = await fetch(issued.data.uploadUrl, {
+            method: "PUT",
+            headers: { "Content-Type": file.type },
+            body: await file.arrayBuffer(),
+        });
+        if (!put.ok) {
+            console.error(`[cms-client] Storage 업로드 실패 ${put.status}`);
+            return { success: false, error: "파일 업로드에 실패했습니다." };
+        }
+        uploaded.push({
+            name: file.name,
+            path: issued.data.path,
+            size: file.size,
+            contentType: file.type,
+        });
+    }
+    return { success: true, files: uploaded };
 }
