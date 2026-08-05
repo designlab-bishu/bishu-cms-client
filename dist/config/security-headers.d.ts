@@ -30,6 +30,11 @@ export interface SecurityHeadersOptions {
     connectSrc?: string[];
     /** 기본값은 `'none'` 이다. 임베드가 필요하면 도메인을 넣는다 */
     frameSrc?: string[];
+    /**
+     * 이 사이트를 iframe 으로 감쌀 수 있는 곳. 기본값 `'none'`.
+     * X-Frame-Options 의 현대식 대체재이며 더 정밀하다.
+     */
+    frameAncestors?: string[];
 }
 /**
  * CSP 헤더 값만 만든다. 이미 자체 `headers()` 구성이 있는 사이트가

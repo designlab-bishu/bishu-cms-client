@@ -34,6 +34,11 @@ export interface SecurityHeadersOptions {
   connectSrc?: string[];
   /** 기본값은 `'none'` 이다. 임베드가 필요하면 도메인을 넣는다 */
   frameSrc?: string[];
+  /**
+   * 이 사이트를 iframe 으로 감쌀 수 있는 곳. 기본값 `'none'`.
+   * X-Frame-Options 의 현대식 대체재이며 더 정밀하다.
+   */
+  frameAncestors?: string[];
 }
 
 /** GA4 (gtag.js) */
@@ -122,6 +127,10 @@ export function buildCsp(options: SecurityHeadersOptions = {}): string {
       )
     ),
     directive("frame-src", options.frameSrc?.length ? options.frameSrc : ["'none'"]),
+    directive(
+      "frame-ancestors",
+      options.frameAncestors?.length ? options.frameAncestors : ["'none'"]
+    ),
     directive("object-src", ["'none'"]),
     directive("base-uri", ["'self'"]),
     directive("form-action", ["'self'"]),

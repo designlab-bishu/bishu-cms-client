@@ -60,6 +60,7 @@ export function buildCsp(options = {}) {
         directive("font-src", merge(["'self'", "data:"], options.fontSrc)),
         directive("connect-src", merge(["'self'"], GA4_CONNECT, consoleOrigin, options.connectSrc, isDev ? ["ws:"] : [])),
         directive("frame-src", options.frameSrc?.length ? options.frameSrc : ["'none'"]),
+        directive("frame-ancestors", options.frameAncestors?.length ? options.frameAncestors : ["'none'"]),
         directive("object-src", ["'none'"]),
         directive("base-uri", ["'self'"]),
         directive("form-action", ["'self'"]),
