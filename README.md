@@ -78,6 +78,38 @@ export async function uploadFormFiles(formData: FormData) {
 <div dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(post.content) }} />
 ```
 
+### 보안 헤더 (next.config.ts)
+
+CSP 는 "여기서 오는 코드만 실행하라"는 브라우저 명단이다. CMS 기능을 붙일 때마다
+항목이 늘어나므로 사이트마다 손으로 관리하지 않는다.
+
+```ts
+// next.config.ts
+import type { NextConfig } from "next";
+import { securityHeaders } from "@designlab-bishu/cms-client/config";
+
+const nextConfig: NextConfig = {
+  async headers() {
+    return [{ source: "/:path*", headers: securityHeaders() }];
+  },
+};
+```
+
+콘솔 오리진·GA4·Firebase Storage 도메인이 기본으로 들어간다. 사이트 고유 리소스는
+인자로 넓힌다.
+
+```ts
+securityHeaders({
+  frameSrc: ["https://www.youtube.com"],   // 유튜브 임베드
+  scriptSrc: ["https://maps.googleapis.com"],
+  frameOptions: "SAMEORIGIN",
+})
+```
+
+> **명단에서 빠지면 브라우저가 조용히 차단한다.** 에러도, 화면 표시도 없다.
+> 콘솔에서 기능을 켰는데 사이트에 안 뜨면 여기를 먼저 본다.
+> (2026-08-05 studio-bishu: 챗봇을 켰으나 CSP 에 콘솔이 없어 차단됨)
+
 ## API
 
 | 구분 | 함수 |
@@ -88,6 +120,7 @@ export async function uploadFormFiles(formData: FormData) {
 | 예약 | `fetchReservationsByMonth(year, month)` · `fetchReservationsByDate(dateStr)` |
 | 집계 | `incrementPostViewCount(boardId, postId)` |
 | 유틸 | `sanitizeCmsHtml(html)` · `maskName(name)` · `getCustomerId()` |
+| 설정 (`/config`) | `securityHeaders(options?)` · `buildCsp(options?)` |
 
 타입: `Board` `Post` `Form` `FormField` `Popup` `Reservation` `FileAttachment` `UploadedFile` 외
 
@@ -104,6 +137,13 @@ export async function uploadFormFiles(formData: FormData) {
 ## 주의
 
 - **서버 전용.** 클라이언트 컴포넌트(`"use client"`)에서 import 하지 말 것
+  - 예외: `/client` (위젯 컴포넌트), `/config` (빌드 설정)
+- `"use server"` 파일에서 **타입을 재수출하지 말 것.** 서버 액션 변환기가 런타임
+  바인딩을 만들어 `ReferenceError` 가 난다. 빌드는 통과하고 런타임에만 재현된다
+  ```ts
+  import type { X } from "pkg"; export type { X };   // ✗
+  export type { X } from "pkg";                      // ○
+  ```
 - 버전을 올려도 **각 사이트가 재배포해야 반영된다.** 자동이 아니다
 - 첨부 다운로드 라우트(`/api/download`)는 사이트에 있어야 하므로 패키지에 포함되지 않는다
 

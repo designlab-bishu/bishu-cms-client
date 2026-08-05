@@ -1,6 +1,6 @@
 {
   "name": "@designlab-bishu/cms-client",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "고객사 사이트가 BISHU 클라이언트 콘솔(CMS)에 연결하기 위한 배관 계층",
   "license": "UNLICENSED",
   "private": false,
@@ -15,6 +15,10 @@
     "./client": {
       "types": "./dist/client/index.d.ts",
       "default": "./dist/client/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "default": "./dist/config/index.js"
     }
   },
   "files": [
