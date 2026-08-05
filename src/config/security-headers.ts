@@ -73,6 +73,17 @@ export function buildCsp(options: SecurityHeadersOptions = {}): string {
   ).replace(/\/+$/, "");
   const isDev = options.isDev ?? process.env.NODE_ENV === "development";
 
+  if (!consoleUrl) {
+    // 조용히 빠지면 챗봇 같은 콘솔 리소스가 브라우저에서 차단되고,
+    // 화면에도 로그에도 아무 표시가 없다. 빌드 로그에서만이라도 보이게 한다.
+    console.warn(
+      "[cms-client] CMS_API_URL 이 없어 CSP 에 콘솔 오리진을 넣지 못했습니다.\n" +
+        "             챗봇 등 콘솔에서 불러오는 리소스가 브라우저에서 차단됩니다.\n" +
+        "             빌드 환경(Vercel 프로젝트 환경변수)에 CMS_API_URL 을 설정하거나,\n" +
+        "             securityHeaders({ consoleUrl: '...' }) 로 직접 넘기세요."
+    );
+  }
+
   const consoleOrigin = consoleUrl ? [consoleUrl] : [];
 
   return [
