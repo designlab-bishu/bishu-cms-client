@@ -49,6 +49,8 @@ export interface Post {
     };
     publishedAt: string | null;
     createdAt: string;
+    /** 조회수. incrementPostViewCount() 로 올린 값 */
+    viewCount?: number;
 }
 export type FormFieldType = "text" | "textarea" | "email" | "phone" | "select" | "radio" | "checkbox" | "file";
 export interface FormFieldOption {

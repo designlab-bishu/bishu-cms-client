@@ -57,6 +57,8 @@ export interface Post {
   };
   publishedAt: string | null;
   createdAt: string;
+  /** 조회수. incrementPostViewCount() 로 올린 값 */
+  viewCount?: number;
 }
 
 // ── 폼 ────────────────────────────────────────────────

@@ -142,6 +142,7 @@ function serializePost(
       ? (data.publishedAt as Timestamp).toDate().toISOString()
       : null,
     createdAt: (data.createdAt as Timestamp).toDate().toISOString(),
+    viewCount: data.stats?.viewCount,
   };
 }
 

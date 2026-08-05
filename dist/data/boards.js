@@ -119,6 +119,7 @@ function serializePost(data) {
             ? data.publishedAt.toDate().toISOString()
             : null,
         createdAt: data.createdAt.toDate().toISOString(),
+        viewCount: data.stats?.viewCount,
     };
 }
 // ── 공개 함수: 콘솔 API 경유, 미설정 시 Firebase 직접 접근 ──
