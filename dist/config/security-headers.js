@@ -20,7 +20,7 @@ const GA4_CONNECT = [
 ];
 const GA4_IMG = ["https://www.googletagmanager.com", "https://*.google-analytics.com"];
 /** 팝업 이미지·첨부 등 Firebase Storage 서빙 도메인 */
-const STORAGE_IMG = [
+const STORAGE_ORIGINS = [
     "https://firebasestorage.googleapis.com",
     "https://*.firebasestorage.app",
     "https://storage.googleapis.com",
@@ -56,9 +56,11 @@ export function buildCsp(options = {}) {
         // Next.js 개발 서버는 eval 을 쓴다. 운영에는 넣지 않는다.
         isDev ? ["'unsafe-eval'"] : [])),
         directive("style-src", merge(["'self'", "'unsafe-inline'"], options.styleSrc)),
-        directive("img-src", merge(["'self'", "data:", "blob:"], STORAGE_IMG, GA4_IMG, consoleOrigin, options.imgSrc)),
+        directive("img-src", merge(["'self'", "data:", "blob:"], STORAGE_ORIGINS, GA4_IMG, consoleOrigin, options.imgSrc)),
         directive("font-src", merge(["'self'", "data:"], options.fontSrc)),
-        directive("connect-src", merge(["'self'"], GA4_CONNECT, consoleOrigin, options.connectSrc, isDev ? ["ws:"] : [])),
+        directive("connect-src", merge(["'self'"], GA4_CONNECT, 
+        // 첨부를 브라우저에서 Storage 로 직접 PUT 한다 (서명 URL)
+        STORAGE_ORIGINS, consoleOrigin, options.connectSrc, isDev ? ["ws:"] : [])),
         directive("frame-src", options.frameSrc?.length ? options.frameSrc : ["'none'"]),
         directive("frame-ancestors", options.frameAncestors?.length ? options.frameAncestors : ["'none'"]),
         directive("object-src", ["'none'"]),

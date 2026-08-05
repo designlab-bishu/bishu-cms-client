@@ -6,4 +6,6 @@
  */
 
 export { BishuWidgets } from "./BishuWidgets.js";
+export { uploadFilesFromBrowser } from "./upload.js";
+export type { UploadTicket, DirectUploadResult } from "./upload.js";
 export type { SiteConfig } from "./types.js";

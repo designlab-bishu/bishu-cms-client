@@ -24,7 +24,8 @@ export {
 
 // ── 쓰기 ──────────────────────────────────────────────
 export { createSubmission } from "./actions/submit.js";
-export { uploadFormFiles } from "./actions/upload.js";
+export { uploadFormFiles, issueUploadUrls } from "./actions/upload.js";
+export type { UploadTicket } from "./actions/upload.js";
 export { trackPopupEvent, incrementPostViewCount } from "./actions/track.js";
 export { getAttachmentUrl } from "./actions/download.js";
 

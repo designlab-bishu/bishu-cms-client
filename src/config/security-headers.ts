@@ -51,7 +51,7 @@ const GA4_CONNECT = [
 const GA4_IMG = ["https://www.googletagmanager.com", "https://*.google-analytics.com"];
 
 /** 팝업 이미지·첨부 등 Firebase Storage 서빙 도메인 */
-const STORAGE_IMG = [
+const STORAGE_ORIGINS = [
   "https://firebasestorage.googleapis.com",
   "https://*.firebasestorage.app",
   "https://storage.googleapis.com",
@@ -109,7 +109,7 @@ export function buildCsp(options: SecurityHeadersOptions = {}): string {
       "img-src",
       merge(
         ["'self'", "data:", "blob:"],
-        STORAGE_IMG,
+        STORAGE_ORIGINS,
         GA4_IMG,
         consoleOrigin,
         options.imgSrc
@@ -121,6 +121,8 @@ export function buildCsp(options: SecurityHeadersOptions = {}): string {
       merge(
         ["'self'"],
         GA4_CONNECT,
+        // 첨부를 브라우저에서 Storage 로 직접 PUT 한다 (서명 URL)
+        STORAGE_ORIGINS,
         consoleOrigin,
         options.connectSrc,
         isDev ? ["ws:"] : []

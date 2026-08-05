@@ -215,3 +215,68 @@ export async function uploadFormFiles(
 
   return { success: true, files: uploaded };
 }
+
+// ── 브라우저 직행 업로드 (M-40) ──────────────────────────
+
+export interface UploadTicket {
+  name: string;
+  contentType: string;
+  size: number;
+  uploadUrl: string;
+  path: string;
+}
+
+/**
+ * 브라우저가 Storage 로 직접 PUT 할 서명 URL 을 발급받는다.
+ *
+ * 사이트의 `"use server"` 파일에서 그대로 재수출해 클라이언트에 노출한다.
+ * 파일 자체는 **서버를 거치지 않는다** — uploadFormFiles() 와 달리
+ * Next 의 Server Action 본문 한도(기본 1MB)에 걸리지 않는다.
+ *
+ * 검증(형식·크기·개수)과 저장 경로는 콘솔이 정한다. 사이트가 보낸 값은
+ * 슬러그와 파일 메타뿐이다.
+ */
+export async function issueUploadUrls(
+  formSlug: string,
+  files: { name: string; contentType: string; size: number }[]
+): Promise<
+  { success: true; tickets: UploadTicket[] } | { success: false; error: string }
+> {
+  if (!isApiMode()) {
+    return {
+      success: false,
+      error:
+        "CMS_API_URL·CMS_API_KEY 가 필요합니다. 브라우저 직행 업로드는 콘솔 API 모드에서만 동작합니다.",
+    };
+  }
+  if (!formSlug || files.length === 0) {
+    return { success: false, error: "필수 데이터가 누락되었습니다." };
+  }
+
+  const tickets: UploadTicket[] = [];
+
+  for (const file of files) {
+    const issued = await postToConsole<{ uploadUrl: string; path: string }>({
+      action: "uploadUrl",
+      formSlug,
+      fileName: file.name,
+      contentType: file.contentType,
+      size: file.size,
+    });
+
+    if (!issued.ok) {
+      const reason = issued.reason;
+      if (reason.includes("file_too_large")) {
+        return { success: false, error: "파일 크기가 허용 범위를 초과했습니다." };
+      }
+      if (reason.includes("content_type_not_allowed")) {
+        return { success: false, error: "허용되지 않는 파일 형식입니다." };
+      }
+      return { success: false, error: "파일 업로드를 시작하지 못했습니다." };
+    }
+
+    tickets.push({ ...file, ...issued.data });
+  }
+
+  return { success: true, tickets };
+}
