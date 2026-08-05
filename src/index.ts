@@ -16,6 +16,7 @@
 export { fetchBoards, fetchBoardBySlug, fetchPosts, fetchPost } from "./data/boards.js";
 export { fetchFormBySlug } from "./data/forms.js";
 export { fetchActivePopups } from "./data/popups.js";
+export { fetchSiteConfig } from "./data/site-config.js";
 export {
   fetchReservationsByMonth,
   fetchReservationsByDate,
@@ -49,3 +50,4 @@ export type {
   FileAttachment,
   UploadedFile,
 } from "./types.js";
+export type { SiteConfig } from "./client/types.js";

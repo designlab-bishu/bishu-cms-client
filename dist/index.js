@@ -15,6 +15,7 @@
 export { fetchBoards, fetchBoardBySlug, fetchPosts, fetchPost } from "./data/boards.js";
 export { fetchFormBySlug } from "./data/forms.js";
 export { fetchActivePopups } from "./data/popups.js";
+export { fetchSiteConfig } from "./data/site-config.js";
 export { fetchReservationsByMonth, fetchReservationsByDate, } from "./data/reservations.js";
 // ── 쓰기 ──────────────────────────────────────────────
 export { createSubmission } from "./actions/submit.js";

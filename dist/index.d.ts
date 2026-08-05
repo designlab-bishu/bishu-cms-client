@@ -14,6 +14,7 @@
 export { fetchBoards, fetchBoardBySlug, fetchPosts, fetchPost } from "./data/boards.js";
 export { fetchFormBySlug } from "./data/forms.js";
 export { fetchActivePopups } from "./data/popups.js";
+export { fetchSiteConfig } from "./data/site-config.js";
 export { fetchReservationsByMonth, fetchReservationsByDate, } from "./data/reservations.js";
 export { createSubmission } from "./actions/submit.js";
 export { uploadFormFiles } from "./actions/upload.js";
@@ -23,3 +24,4 @@ export { sanitizeCmsHtml } from "./lib/sanitize.js";
 export { maskName } from "./lib/mask.js";
 export { getCustomerId } from "./lib/config.js";
 export type { Board, BoardViewType, Post, Form, FormField, FormFieldType, FormFieldOption, FormFieldFileConfig, Popup, PopupEventType, Reservation, ReservationProduct, FileAttachment, UploadedFile, } from "./types.js";
+export type { SiteConfig } from "./client/types.js";
