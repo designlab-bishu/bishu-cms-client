@@ -20,6 +20,7 @@
  * @param formSlug 폼 슬러그. 문서 ID·필드 ID 는 콘솔이 조회해서 정한다
  * @param issue    사이트의 `"use server"` 파일이 재수출한 issueUploadUrls
  * @param onProgress 0~1 진행률. 큰 파일에서 사용자에게 상태를 보여줄 때 쓴다
+ * @param fieldId  첨부 필드가 둘 이상인 폼에서 어느 쪽인지 지정
  *
  * ```ts
  * // 사이트: lib/cms-actions.ts
@@ -33,7 +34,7 @@
  * const r = await uploadFilesFromBrowser(files, "inquiry", issueUploadUrls);
  * ```
  */
-export async function uploadFilesFromBrowser(files, formSlug, issue, onProgress) {
+export async function uploadFilesFromBrowser(files, formSlug, issue, onProgress, fieldId) {
     if (files.length === 0) {
         return { success: false, error: "선택된 파일이 없습니다." };
     }
@@ -42,7 +43,7 @@ export async function uploadFilesFromBrowser(files, formSlug, issue, onProgress)
         // OS 가 타입을 모르면 빈 문자열이 온다. 콘솔 화이트리스트가 받는 값으로 맞춘다.
         contentType: f.type || "application/octet-stream",
         size: f.size,
-    })));
+    })), fieldId);
     if (!issued.success) {
         return { success: false, error: issued.error };
     }

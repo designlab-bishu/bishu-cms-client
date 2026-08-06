@@ -25,7 +25,7 @@ type IssueFn = (formSlug: string, files: {
     name: string;
     contentType: string;
     size: number;
-}[]) => Promise<{
+}[], fieldId?: string) => Promise<{
     success: true;
     tickets: UploadTicket[];
 } | {
@@ -44,6 +44,7 @@ export interface DirectUploadResult {
  * @param formSlug 폼 슬러그. 문서 ID·필드 ID 는 콘솔이 조회해서 정한다
  * @param issue    사이트의 `"use server"` 파일이 재수출한 issueUploadUrls
  * @param onProgress 0~1 진행률. 큰 파일에서 사용자에게 상태를 보여줄 때 쓴다
+ * @param fieldId  첨부 필드가 둘 이상인 폼에서 어느 쪽인지 지정
  *
  * ```ts
  * // 사이트: lib/cms-actions.ts
@@ -57,5 +58,5 @@ export interface DirectUploadResult {
  * const r = await uploadFilesFromBrowser(files, "inquiry", issueUploadUrls);
  * ```
  */
-export declare function uploadFilesFromBrowser(files: File[], formSlug: string, issue: IssueFn, onProgress?: (ratio: number) => void): Promise<DirectUploadResult>;
+export declare function uploadFilesFromBrowser(files: File[], formSlug: string, issue: IssueFn, onProgress?: (ratio: number) => void, fieldId?: string): Promise<DirectUploadResult>;
 export {};

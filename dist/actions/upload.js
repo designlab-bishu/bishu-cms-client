@@ -196,7 +196,12 @@ export async function uploadFormFiles(formData) {
  * 검증(형식·크기·개수)과 저장 경로는 콘솔이 정한다. 사이트가 보낸 값은
  * 슬러그와 파일 메타뿐이다.
  */
-export async function issueUploadUrls(formSlug, files) {
+export async function issueUploadUrls(formSlug, files, 
+/**
+ * 첨부 필드 ID. 파일 필드가 둘 이상인 폼(이력서 + 포트폴리오 등)에서 지정한다.
+ * 생략하면 콘솔이 첫 번째 파일 필드를 쓴다.
+ */
+fieldId) {
     if (!isApiMode()) {
         return {
             success: false,
@@ -214,6 +219,7 @@ export async function issueUploadUrls(formSlug, files) {
             fileName: file.name,
             contentType: file.contentType,
             size: file.size,
+            ...(fieldId ? { fieldId } : {}),
         });
         if (!issued.ok) {
             const reason = issued.reason;

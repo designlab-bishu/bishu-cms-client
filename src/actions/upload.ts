@@ -238,7 +238,12 @@ export interface UploadTicket {
  */
 export async function issueUploadUrls(
   formSlug: string,
-  files: { name: string; contentType: string; size: number }[]
+  files: { name: string; contentType: string; size: number }[],
+  /**
+   * 첨부 필드 ID. 파일 필드가 둘 이상인 폼(이력서 + 포트폴리오 등)에서 지정한다.
+   * 생략하면 콘솔이 첫 번째 파일 필드를 쓴다.
+   */
+  fieldId?: string
 ): Promise<
   { success: true; tickets: UploadTicket[] } | { success: false; error: string }
 > {
@@ -262,6 +267,7 @@ export async function issueUploadUrls(
       fileName: file.name,
       contentType: file.contentType,
       size: file.size,
+      ...(fieldId ? { fieldId } : {}),
     });
 
     if (!issued.ok) {
