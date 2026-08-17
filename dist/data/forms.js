@@ -1,108 +1,17 @@
 /**
- * 폼 데이터 서버사이드 읽기 + 제출 (firebase-admin)
+ * 폼 데이터 서버사이드 읽기 (콘솔 API 경유)
  * @module lib/data/forms
  *
- * Firestore 경로:
- *   Form:       customers/{customerId}/forms/{formId}
- *   Submission: customers/{customerId}/forms/{formId}/submissions/{submissionId}
+ * 제출은 `actions/submit.ts` 의 `createSubmission` 을 쓴다.
+ * v0.10.0 이전에는 이 파일에도 같은 이름의 함수가 있었는데, 패키지가
+ * 내보내는 것은 `actions/submit` 쪽이었고 이쪽은 아무도 부르지 않는
+ * Firebase 직접 접근 구현이었다. 중복을 남기면 어느 쪽이 도는지 헷갈린다.
  */
-import { Timestamp, FieldValue } from "firebase-admin/firestore";
-import { db, getCustomerId } from "../lib/config.js";
-import { fetchFromConsole, isApiMode } from "../lib/client.js";
-/**
- * slug로 폼 조회 (active만)
- */
-async function directFetchFormBySlug(slug) {
-    const snap = await db()
-        .collection("customers")
-        .doc(getCustomerId())
-        .collection("forms")
-        .where("slug", "==", slug)
-        .where("status", "==", "active")
-        .limit(1)
-        .get();
-    if (snap.empty)
-        return null;
-    const data = snap.docs[0].data();
-    return {
-        formId: data.formId,
-        title: data.title,
-        description: data.description,
-        slug: data.slug,
-        fields: (data.fields ?? [])
-            .map((f) => ({
-            id: f.id,
-            type: f.type,
-            label: f.label,
-            required: f.required,
-            order: f.order,
-            placeholder: f.placeholder,
-            helpText: f.helpText,
-            options: f.options,
-            file: f.file,
-        }))
-            .sort((a, b) => a.order - b.order),
-        submit: {
-            successMessage: data.submit?.successMessage ?? "제출이 완료되었습니다.",
-            redirectUrl: data.submit?.redirectUrl,
-        },
-    };
-}
-/**
- * 폼 제출 생성
- */
-export async function createSubmission(formId, values, meta) {
-    const formDoc = await db()
-        .collection("customers")
-        .doc(getCustomerId())
-        .collection("forms")
-        .doc(formId)
-        .get();
-    // 제출 시점의 필드 스냅샷 생성
-    const formData = formDoc.data();
-    const fieldsSnapshot = (formData?.fields ?? [])
-        .map((f) => ({
-        id: f.id,
-        type: f.type,
-        label: f.label,
-        required: f.required,
-        order: f.order,
-    }))
-        .sort((a, b) => a.order - b.order);
-    const colRef = db()
-        .collection("customers")
-        .doc(getCustomerId())
-        .collection("forms")
-        .doc(formId)
-        .collection("submissions");
-    const docRef = colRef.doc();
-    const now = Timestamp.now();
-    await docRef.set({
-        schemaVersion: "v1",
-        submissionId: docRef.id,
-        values,
-        fieldsSnapshot,
-        meta: meta ?? {},
-        createdAt: now,
-        updatedAt: now,
-    });
-    // ── usageDaily 집계 ──
-    const todayStr = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" });
-    const today = todayStr.replace(/-/g, "");
-    await db()
-        .doc(`customers/${getCustomerId()}/usageDaily/${today}`)
-        .set({
-        date: todayStr,
-        customerId: getCustomerId(),
-        forms: { submissions: FieldValue.increment(1) },
-        updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
-    return docRef.id;
-}
-// ── 공개 함수: 콘솔 API 경유, 미설정 시 Firebase 직접 접근 ──
+import { fetchFromConsole } from "../lib/client.js";
 export async function fetchFormBySlug(slug) {
-    if (!isApiMode())
-        return directFetchFormBySlug(slug);
-    const r = await fetchFromConsole({ resource: "form", slug: String(slug) });
+    const r = await fetchFromConsole({
+        resource: "form",
+        slug: String(slug),
+    });
     return r?.form ?? null;
 }

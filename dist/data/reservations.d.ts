@@ -1,5 +1,5 @@
 /**
- * 예약 데이터 서버사이드 읽기 (firebase-admin)
+ * 예약 데이터 서버사이드 읽기 (콘솔 API 경유)
  * @module lib/data/reservations
  *
  * Server Component에서만 import.

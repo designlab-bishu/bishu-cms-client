@@ -5,7 +5,7 @@
  * <BishuWidgets /> 에 넘길 값을 서버에서 받아온다.
  * 브라우저로 전달되는 값이므로 비밀값은 포함하지 않는다.
  */
-import { fetchFromConsole, isApiMode } from "../lib/client.js";
+import { fetchFromConsole } from "../lib/client.js";
 import { getCustomerId } from "../lib/config.js";
 /**
  * 조회 실패 시 **위젯을 심지 않는 안전한 기본값**을 반환한다.
@@ -19,8 +19,6 @@ export async function fetchSiteConfig() {
         ga4MeasurementId: null,
         consoleUrl,
     };
-    if (!isApiMode())
-        return fallback;
     const r = await fetchFromConsole({ resource: "siteConfig" });
     if (!r?.siteConfig)
         return fallback;

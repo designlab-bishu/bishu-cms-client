@@ -1,5 +1,5 @@
 /**
- * 패키지 공통 설정 — Firebase 초기화 + 고객사 식별
+ * 패키지 공통 설정 — 고객사 식별
  * @module lib/config
  *
  * 서버 전용. 클라이언트 컴포넌트에서 import 하지 말 것.
@@ -7,11 +7,17 @@
  * customerId 는 여기서 한 번만 읽는다. 각 함수의 인자로 받지 않는 이유는,
  * 호출부가 값을 잘못 넘겨 다른 고객사 경로에 쓰거나 임의 문자열을 경로
  * 세그먼트로 흘리는 사고를 구조적으로 막기 위해서다.
+ *
+ * 🚫 **Firebase 직접 접근을 다시 넣지 말 것.** v0.10.0 에서 걷어냈다.
+ * 예전에는 이 파일이 `FIREBASE_SERVICE_ACCOUNT_KEY` 로 Admin SDK 를 초기화하고,
+ * `CMS_API_URL`·`CMS_API_KEY` 가 없으면 각 모듈이 그쪽으로 조용히 폴백했다.
+ * Admin SDK 는 보안 규칙을 전면 우회하고 단일 Firebase 프로젝트에 전 고객사가
+ * 들어 있으므로, 고객사 사이트 하나의 환경변수가 새면 모든 테넌트가 함께
+ * 열렸다 (M-04). 폴백이 조용했다는 점이 특히 나빴다 — 환경변수 하나만
+ * 빠뜨려도 경고 없이 마스터 키 모드로 돌아갔다.
+ *
+ * 이제 이 패키지는 콘솔 API 로만 통신한다. 설정이 빠지면 조회는 null 을
+ * 돌려주며 에러 로그를 남기고, 제출은 예외를 던진다.
  */
-import { type Firestore } from "firebase-admin/firestore";
 /** 고객사 ID. 설정되지 않았으면 즉시 실패시킨다 — 조용히 빈 결과를 주면 원인 파악이 늦다. */
 export declare function getCustomerId(): string;
-export declare function db(): Firestore;
-export declare function bucket(): import("@google-cloud/storage").Bucket;
-/** customers/{customerId} 하위 컬렉션 경로 */
-export declare function customerPath(...segments: string[]): string;

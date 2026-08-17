@@ -6,7 +6,7 @@
  * 브라우저로 전달되는 값이므로 비밀값은 포함하지 않는다.
  */
 
-import { fetchFromConsole, isApiMode } from "../lib/client.js";
+import { fetchFromConsole } from "../lib/client.js";
 import { getCustomerId } from "../lib/config.js";
 import type { SiteConfig } from "../client/types.js";
 
@@ -22,8 +22,6 @@ export async function fetchSiteConfig(): Promise<SiteConfig> {
     ga4MeasurementId: null,
     consoleUrl,
   };
-
-  if (!isApiMode()) return fallback;
 
   const r = await fetchFromConsole<{
     siteConfig: Omit<SiteConfig, "consoleUrl">;

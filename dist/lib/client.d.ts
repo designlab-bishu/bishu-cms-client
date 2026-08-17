@@ -12,8 +12,6 @@
  */
 export declare class CmsConfigError extends Error {
 }
-/** 콘솔 API 를 쓰도록 설정되어 있는지. 미설정이면 Firebase 직접 접근으로 폴백한다. */
-export declare function isApiMode(): boolean;
 /**
  * 콘솔의 공개 조회 API 를 호출한다.
  *
