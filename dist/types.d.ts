@@ -106,8 +106,15 @@ export interface Popup {
     startDate: string;
     endDate: string;
     targetPages?: string[];
+    /** 표시 디바이스 — 사이트가 UA 로 거른다 (POP-P-91). 둘 다면 전체 */
+    devices: ("desktop" | "mobile")[];
+    /** 팝업 안 문구 (POP-P-93) — 없으면 이미지만 */
+    heading?: string;
+    description?: string;
+    buttonLabel?: string;
 }
-export type PopupEventType = "impression" | "click" | "dismiss";
+/** 「닫기」와 「오늘 하루 보지 않기」는 따로 센다 (POP-P-95) */
+export type PopupEventType = "impression" | "click" | "dismiss" | "dismissToday";
 export interface Reservation {
     reservationId: string;
     date: string;

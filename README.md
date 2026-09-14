@@ -15,27 +15,24 @@
 
 ## 설치
 
-GitHub Packages 에 비공개로 배포된다. 설치하려면 프로젝트 루트에 `.npmrc` 가 필요하다.
-
-```
-# .npmrc
-@designlab-bishu:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
-```
+git 의존성으로 설치한다. 버전은 **항상 태그로 고정**한다 — 토큰·npm 계정이 필요 없다.
 
 ```bash
-npm install @designlab-bishu/cms-client
+npm install "github:designlab-bishu/bishu-cms-client#v0.11.0"
 ```
 
-> `GITHUB_TOKEN` 은 `read:packages` 스코프를 가진 개인 액세스 토큰이다.
-> Vercel 배포 시에는 환경변수로 등록해야 빌드가 통과한다.
+`dist/` 가 저장소에 포함돼 있어 설치 시 빌드가 돌지 않는다. 버전을 올려도 **각 사이트가
+태그를 바꿔 재설치·재배포해야 반영된다.** 변경 내역은 [CHANGELOG.md](CHANGELOG.md).
 
 ## 환경변수
 
 ```bash
-CUSTOMER_ID=changchanghan            # 콘솔에서 발급한 고객사 ID
-FIREBASE_SERVICE_ACCOUNT_KEY={...}   # 서비스 계정 JSON
+CUSTOMER_ID=changchanghan                        # 콘솔에서 발급한 고객사 ID
+CMS_API_URL=https://console.designlab-bishu.com  # 콘솔 주소
+CMS_API_KEY=bcs_...                              # 고객사 API 키 (콘솔 → 고객사 관리에서 발급)
 ```
+
+콘솔 API 로만 통신한다 (v0.10.0~). Firebase 서비스 계정 키는 넣지 않는다.
 
 ## 사용
 
@@ -116,7 +113,7 @@ securityHeaders({
 |---|---|
 | 게시판 | `fetchBoards()` · `fetchBoardBySlug(slug)` · `fetchPosts(boardId)` · `fetchPost(boardId, postId)` |
 | 폼 | `fetchFormBySlug(slug)` · `createSubmission(formId, values, meta?)` · `uploadFormFiles(formData)` |
-| 팝업 | `fetchActivePopups()` · `trackPopupEvent(type)` |
+| 팝업 | `fetchActivePopups()` · `trackPopupEvent(type, popupId?)` |
 | 예약 | `fetchReservationsByMonth(year, month)` · `fetchReservationsByDate(dateStr)` |
 | 집계 | `incrementPostViewCount(boardId, postId)` |
 | 유틸 | `sanitizeCmsHtml(html)` · `maskName(name)` · `getCustomerId()` |
@@ -150,7 +147,10 @@ securityHeaders({
 ## 배포
 
 ```bash
-# 버전 올리고 태그 푸시하면 GitHub Actions 가 배포한다
-npm version patch
+# dist 를 다시 빌드해 커밋하고, 버전 태그를 푸시한다
+npm run build
+npm version minor        # 또는 patch
 git push --follow-tags
 ```
+
+사이트는 `#vX.Y.Z` 태그로 설치하므로 **태그가 없으면 설치되지 않는다.**
