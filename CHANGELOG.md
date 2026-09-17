@@ -3,6 +3,18 @@
 사이트는 `github:designlab-bishu/bishu-cms-client#vX.Y.Z` 태그로 설치한다.
 응답 형태는 **더하기만 하고 빼지 않는다** (콘솔 API-P-30) — minor 올림은 사이트 코드를 고치지 않아도 동작한다.
 
+## v0.12.0 — 2026-09-18
+
+콘솔 게시판 개편(BRD-P-68 · 77, API-P-32)을 따른다. 뺀 것은 없다.
+
+### 추가
+- `Board` 에 `postsPerPage?: number` — 페이지당 노출 수(10·20·30·50). 사이트가 목록을 이 크기로 자른다. 없으면 20.
+- `Board` 에 `description?: string` — 게시판 설명.
+
+### 사이트 쪽에서 할 일
+패키지만 올리면 타입은 통과하지만 목록은 여전히 전부 그려진다. 템플릿(`bishu-client-template`) 의
+`src/app/boards/[boardSlug]/page.tsx`(`?page=N` 슬라이스) 와 `src/components/boards/Pagination.tsx` 를 맞춘다.
+
 ## v0.11.0 — 2026-09-14
 
 콘솔 팝업 모듈 개편(POP-P-91 · 93 · 94 · 95, API-P-31)을 따른다. 뺀 것은 없다.

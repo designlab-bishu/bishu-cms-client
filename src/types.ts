@@ -34,6 +34,10 @@ export interface Board {
   slug: string;
   viewType: BoardViewType;
   categories: string[];
+  /** 게시판 설명 (콘솔 BRD-P-68 · API-P-32). 없으면 빈 값 */
+  description?: string;
+  /** 페이지당 노출 수 10·20·30·50 (콘솔 BRD-P-77 · API-P-32). 없으면 사이트가 20 으로 본다 */
+  postsPerPage?: number;
 }
 
 export interface Post {
