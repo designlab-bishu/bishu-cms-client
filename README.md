@@ -18,7 +18,7 @@
 git 의존성으로 설치한다. 버전은 **항상 태그로 고정**한다 — 토큰·npm 계정이 필요 없다.
 
 ```bash
-npm install "github:designlab-bishu/bishu-cms-client#v0.11.0"
+npm install "github:designlab-bishu/bishu-cms-client#v0.13.0"
 ```
 
 `dist/` 가 저장소에 포함돼 있어 설치 시 빌드가 돌지 않는다. 버전을 올려도 **각 사이트가

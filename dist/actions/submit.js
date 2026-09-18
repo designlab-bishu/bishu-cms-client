@@ -11,7 +11,9 @@ import { postToConsole } from "../lib/client.js";
  *
  * 실패 시 예외를 던진다 — 조용히 실패하면 고객 문의가 유실된다.
  */
-export async function createSubmission(formSlug, values, meta) {
+export async function createSubmission(formSlug, values, 
+/** @deprecated 콘솔이 저장하지 않는다 (FORM-P-154 · API-P-33). 옛 호출 호환용으로만 남긴다 */
+meta) {
     const res = await postToConsole({
         action: "submit",
         formSlug,

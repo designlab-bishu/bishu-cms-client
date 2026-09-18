@@ -17,6 +17,7 @@ import { postToConsole } from "../lib/client.js";
 export async function createSubmission(
   formSlug: string,
   values: Record<string, unknown>,
+  /** @deprecated 콘솔이 저장하지 않는다 (FORM-P-154 · API-P-33). 옛 호출 호환용으로만 남긴다 */
   meta?: { pageUrl?: string; referrer?: string; userAgent?: string }
 ): Promise<string> {
 

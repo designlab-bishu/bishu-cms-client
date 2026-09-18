@@ -75,8 +75,13 @@ export type FormFieldType =
   | "select"
   | "radio"
   | "checkbox"
-  | "file";
+  | "file"
+  /** ISO 8601 문자열 — 날짜만(`YYYY-MM-DD`) 또는 일시(`YYYY-MM-DDTHH:mm`) (FORM-P-161) */
+  | "date"
+  /** 문자열 배열 `[우편번호, 기본주소, 상세주소]` — 순서가 곧 뜻 (FORM-P-162) */
+  | "address";
 
+/** 옵션. 사이트는 **`label` 을 보여주고 `value` 를 보낸다** (FORM-P-155). 옛 폼은 둘이 같다 */
 export interface FormFieldOption {
   value: string;
   label: string;
@@ -97,6 +102,10 @@ export interface FormField {
   placeholder?: string;
   helpText?: string;
   options?: FormFieldOption[];
+  /** 「기타」 선택지 — 방문자가 직접 적은 글이 접두어 없이 그대로 값이 된다 (FORM-P-128·172). 선택형만 */
+  allowOther?: boolean;
+  /** 최대 선택 수 — 체크박스만 (FORM-P-129). 없으면 제한 없음 */
+  maxSelect?: number;
   file?: FormFieldFileConfig;
 }
 
