@@ -1,6 +1,6 @@
 "use client";
 /**
- * 사이트 공통 위젯 (챗봇 · GA4)
+ * 사이트 공통 위젯 (챗봇 · GA4 · 첫 진입 경로)
  * @module client/BishuWidgets
  *
  * 구축 시 이 컴포넌트 하나만 layout 에 넣으면, 이후 챗봇을 켜고 끄거나
@@ -12,6 +12,7 @@
  * React 가 렌더한 <script> 는 브라우저가 실행하지 않기 때문이다.
  */
 import { useEffect } from "react";
+import { classifyEntry, encodeEntry, ENTRY_COOKIE } from "../lib/entry-source.js";
 function injectScript(attrs, inline) {
     const el = document.createElement("script");
     for (const [k, v] of Object.entries(attrs))
@@ -39,6 +40,16 @@ export function BishuWidgets({ config }) {
             init.remove();
         };
     }, [ga4MeasurementId]);
+    // ── 첫 진입 경로 (v0.14.0 · 콘솔 FORM-P-179) ──
+    // 이번 방문의 첫 페이지에서 한 번만 적는다. 세션 쿠키라 브라우저를 닫으면 사라진다.
+    // 서버의 createSubmission 이 읽어 유입 채널로 보낸다 — 전체 주소 · 검색어는 남기지 않는다.
+    useEffect(() => {
+        if (document.cookie.split("; ").some((c) => c.startsWith(`${ENTRY_COOKIE}=`)))
+            return;
+        const source = classifyEntry(window.location.href, document.referrer);
+        const secure = window.location.protocol === "https:" ? "; Secure" : "";
+        document.cookie = `${ENTRY_COOKIE}=${encodeEntry(source)}; Path=/; SameSite=Lax${secure}`;
+    }, []);
     // ── 챗봇 ──
     useEffect(() => {
         if (!chatbotEnabled || !customerId || !consoleUrl)
