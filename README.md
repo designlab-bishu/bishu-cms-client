@@ -112,7 +112,7 @@ securityHeaders({
 | 구분 | 함수 |
 |---|---|
 | 게시판 | `fetchBoards()` · `fetchBoardBySlug(slug)` · `fetchPosts(boardId)` · `fetchPost(boardId, postId)` |
-| 폼 | `fetchFormBySlug(slug)` · `createSubmission(formId, values, meta?)` · `uploadFormFiles(formData)` |
+| 폼 | `fetchFormBySlug(slug)` · `createSubmission(formSlug, values, meta?)` · `uploadFormFiles(formData)` — 제출에는 `BishuWidgets` 가 적은 첫 진입 경로(유입 채널)가 자동으로 실린다 (v0.14.0) |
 | 팝업 | `fetchActivePopups()` · `trackPopupEvent(type, popupId?)` |
 | 예약 | `fetchReservationsByMonth(year, month)` · `fetchReservationsByDate(dateStr)` |
 | 집계 | `incrementPostViewCount(boardId, postId)` |
