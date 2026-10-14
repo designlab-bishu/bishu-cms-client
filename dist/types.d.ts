@@ -60,7 +60,12 @@ export type FormFieldType = "text" | "textarea" | "email" | "phone" | "select" |
 /** ISO 8601 문자열 — 날짜만(`YYYY-MM-DD`) 또는 일시(`YYYY-MM-DDTHH:mm`) (FORM-P-161) */
  | "date"
 /** 문자열 배열 `[우편번호, 기본주소, 상세주소]` — 순서가 곧 뜻 (FORM-P-162) */
- | "address";
+ | "address"
+/**
+ * 개인정보 수집·이용 동의 — 체크박스 하나. 값은 **`true`** 로 보낸다 (FORM-P-181 · v0.15.0).
+ * 늘 필수이고, 체크하지 않은 제출은 콘솔이 거부한다(`consent_required`). 문구 · 링크는 `consent` 에
+ */
+ | "consent";
 /** 옵션. 사이트는 **`label` 을 보여주고 `value` 를 보낸다** (FORM-P-155). 옛 폼은 둘이 같다 */
 export interface FormFieldOption {
     value: string;
@@ -85,6 +90,11 @@ export interface FormField {
     /** 최대 선택 수 — 체크박스만 (FORM-P-129). 없으면 제한 없음 */
     maxSelect?: number;
     file?: FormFieldFileConfig;
+    /** 개인정보 동의 칸의 문구 · 처리방침 링크 — `consent` 타입만 (FORM-P-181). 링크는 http(s) 만 온다 */
+    consent?: {
+        text: string;
+        privacyPolicyUrl?: string;
+    };
 }
 export interface Form {
     formId: string;
