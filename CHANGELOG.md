@@ -3,6 +3,20 @@
 사이트는 `github:designlab-bishu/bishu-cms-client#vX.Y.Z` 태그로 설치한다.
 응답 형태는 **더하기만 하고 빼지 않는다** (콘솔 API-P-30) — minor 올림은 사이트 코드를 고치지 않아도 동작한다.
 
+## v0.15.0 — 2026-10-14
+
+콘솔 개인정보 처리 보강(FORM-P-181)을 따른다. 뺀 것은 없다.
+
+### 추가
+- `FormFieldType` 에 `"consent"` — 개인정보 수집·이용 동의 체크박스 하나. 값은 `true` 로 보낸다. 늘 필수이고 체크하지 않으면 콘솔이 `consent_required` 로 거부한다.
+- `FormField` 에 `consent?: { text, privacyPolicyUrl? }` — 체크 옆에 보일 문구와 처리방침 링크.
+- 데모 고객사(`demo-customer`)의 제출 · 업로드 · 예약 접수/취소는 콘솔이 `demo_readonly`(403)로 거부한다 (API-P-35). 사이트는 「데모에서는 접수되지 않습니다」를 보인다.
+
+### 사이트 쪽에서 할 일
+`consent` 타입을 그리는 코드가 필요하다 — 모르는 타입은 텍스트 칸으로 폴백돼 **제출이 거부된다.**
+템플릿(`bishu-client-template`) 의 `FormFieldInput.tsx`(체크박스 + 문구 + 링크) · `FormRenderer.tsx`(체크 필수 검증)를 맞춘다.
+**콘솔에서 동의 칸을 추가하기 전에 사이트를 먼저 올린다.**
+
 ## v0.14.0 — 2026-10-14
 
 콘솔 문의 흐름 보강(FORM-P-179 · API-P-36)을 따른다. 뺀 것은 없다.
