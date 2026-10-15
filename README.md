@@ -18,7 +18,7 @@
 git 의존성으로 설치한다. 버전은 **항상 태그로 고정**한다 — 토큰·npm 계정이 필요 없다.
 
 ```bash
-npm install "github:designlab-bishu/bishu-cms-client#v0.13.0"
+npm install "github:designlab-bishu/bishu-cms-client#v0.16.0"
 ```
 
 `dist/` 가 저장소에 포함돼 있어 설치 시 빌드가 돌지 않는다. 버전을 올려도 **각 사이트가
@@ -112,7 +112,7 @@ securityHeaders({
 | 구분 | 함수 |
 |---|---|
 | 게시판 | `fetchBoards()` · `fetchBoardBySlug(slug)` · `fetchPosts(boardId)` · `fetchPost(boardId, postId)` |
-| 폼 | `fetchFormBySlug(slug)` · `createSubmission(formSlug, values, meta?)` · `uploadFormFiles(formData)` — 제출에는 `BishuWidgets` 가 적은 첫 진입 경로(유입 채널)가 자동으로 실린다 (v0.14.0) |
+| 폼 | `fetchFormBySlug(slug)` · `createSubmission(formSlug, values, meta?)` · `uploadFormFiles(formData)` — 제출에는 `BishuWidgets` 가 적은 첫 진입 경로(유입 채널 · v0.14.0)와 기기 종류(mobile · pc · tablet · v0.16.0)가 자동으로 실린다 |
 | 팝업 | `fetchActivePopups()` · `trackPopupEvent(type, popupId?)` |
 | 예약 | `fetchReservationsByMonth(year, month)` · `fetchReservationsByDate(dateStr)` |
 | 집계 | `incrementPostViewCount(boardId, postId)` |
@@ -130,6 +130,7 @@ securityHeaders({
 - 저장 경로 고정 — `uploads/{customerId}/...`. 요청자가 경로를 정할 수 없다
 - 본문 정제 — `script`·이벤트 핸들러·`javascript:` 스킴 차단
 - 예약자 이름 마스킹
+- 제출 유입 정보 최소화 — 채널 · 들어온 도메인 · 기기 한 단어만 보낸다. 전체 주소 · 검색어 · UTM 원문 · User Agent · 화면 크기는 보내지 않는다
 
 ## 주의
 
@@ -147,6 +148,7 @@ securityHeaders({
 ## 배포
 
 ```bash
+npm test                 # 빌드 + 단위 테스트
 # dist 를 다시 빌드해 커밋하고, 버전 태그를 푸시한다
 npm run build
 npm version minor        # 또는 patch

@@ -3,6 +3,22 @@
 사이트는 `github:designlab-bishu/bishu-cms-client#vX.Y.Z` 태그로 설치한다.
 응답 형태는 **더하기만 하고 빼지 않는다** (콘솔 API-P-30) — minor 올림은 사이트 코드를 고치지 않아도 동작한다.
 
+## v0.16.0 — 2026-10-15
+
+콘솔 리포트 기기별 문의율(FORM-P-183 · API-P-38)을 따른다. 뺀 것은 없다.
+
+### 추가
+- **기기 종류** — `BishuWidgets` 가 방문자 브라우저에서 기기를 `mobile` · `pc` · `tablet` 중 하나로 판별해 세션 쿠키 `bishu_device` 에 적고,
+  `createSubmission()` 이 유입 채널과 함께 `source: { channel, domain, device }` 로 보낸다.
+  판별은 `navigator.userAgentData.mobile` 이 있으면 우선, 없으면 UA 문자열(iPad · 안드로이드 태블릿 → tablet, 휴대폰 → mobile, 나머지 pc).
+  iPadOS 데스크톱 모드(MacIntel + 터치 2점 이상)는 tablet. 판별하지 못하면 보내지 않는다.
+  **User Agent 원문 · 화면 크기 · 브라우저 이름은 쿠키에도 콘솔에도 남지 않는다** — 세 갈래 한 단어뿐이다.
+- 채널 쿠키 없이 기기 쿠키만 있어도 기기는 보낸다 (콘솔은 채널 「알 수 없음」 + 기기로 받는다).
+- `npm test` — 기기 판별 단위 테스트(`test/device.test.mjs`, Node 내장 test runner · 추가 패키지 없음).
+
+### 사이트 쪽에서 할 일
+**없다** — 패키지만 올리면 된다. `BishuWidgets` 가 layout 에 있어야 쿠키가 적힌다. 없는 사이트의 제출은 기기 없이 저장된다.
+
 ## v0.15.0 — 2026-10-14
 
 콘솔 개인정보 처리 보강(FORM-P-181)을 따른다. 뺀 것은 없다.

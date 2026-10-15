@@ -1,6 +1,6 @@
 "use client";
 /**
- * 사이트 공통 위젯 (챗봇 · GA4 · 첫 진입 경로)
+ * 사이트 공통 위젯 (챗봇 · GA4 · 첫 진입 경로 · 기기 종류)
  * @module client/BishuWidgets
  *
  * 구축 시 이 컴포넌트 하나만 layout 에 넣으면, 이후 챗봇을 켜고 끄거나
@@ -13,6 +13,7 @@
  */
 import { useEffect } from "react";
 import { classifyEntry, encodeEntry, ENTRY_COOKIE } from "../lib/entry-source.js";
+import { DEVICE_COOKIE, detectBrowserDevice } from "../lib/device.js";
 function injectScript(attrs, inline) {
     const el = document.createElement("script");
     for (const [k, v] of Object.entries(attrs))
@@ -49,6 +50,18 @@ export function BishuWidgets({ config }) {
         const source = classifyEntry(window.location.href, document.referrer);
         const secure = window.location.protocol === "https:" ? "; Secure" : "";
         document.cookie = `${ENTRY_COOKIE}=${encodeEntry(source)}; Path=/; SameSite=Lax${secure}`;
+    }, []);
+    // ── 기기 종류 (v0.16.0 · 콘솔 FORM-P-183) ──
+    // mobile · pc · tablet 한 단어만 적는다. UA 원문 · 화면 크기는 남기지 않는다.
+    // 판별하지 못하면 적지 않는다 — 서버의 createSubmission 이 기기 없이 보낸다.
+    useEffect(() => {
+        const device = detectBrowserDevice();
+        if (!device)
+            return;
+        if (document.cookie.split("; ").includes(`${DEVICE_COOKIE}=${device}`))
+            return;
+        const secure = window.location.protocol === "https:" ? "; Secure" : "";
+        document.cookie = `${DEVICE_COOKIE}=${device}; Path=/; SameSite=Lax${secure}`;
     }, []);
     // ── 챗봇 ──
     useEffect(() => {
