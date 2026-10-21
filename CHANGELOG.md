@@ -3,6 +3,39 @@
 사이트는 `github:designlab-bishu/bishu-cms-client#vX.Y.Z` 태그로 설치한다.
 응답 형태는 **더하기만 하고 빼지 않는다** (콘솔 API-P-30) — minor 올림은 사이트 코드를 고치지 않아도 동작한다.
 
+## v0.17.0 — 2026-10-21
+
+폼 제출 공용 함수를 더한다. 뺀 것 · 바뀐 것은 없다 — 패키지만 올려도 기존 제출은 그대로 동작한다.
+
+### 추가
+- **`submitCmsForm(formSlug, values, options?)`** — 사이트 폼 값을 콘솔 폼 정의에 맞춰 제출한다.
+  - **id 로 짝짓기** — `fieldMap`(사이트 키 → 콘솔 필드 id)을 주면 그 표대로, 생략하면 `values` 의 키를 필드 id 로 본다(템플릿 방식).
+    빈 값은 보내지 않는다. 정의에 없는 필드를 가리키는 키 · 비어 있는 필수 칸은 서버 로그에 경고로 남긴다 (키 · 라벨만, 값은 남기지 않는다).
+  - **동의(consent) 채우기** — `consent: true` 일 때만 폼의 동의 칸을 `true` 로 채운다. 동의 칸이 있는데 체크하지 않았으면 **콘솔을 부르지 않고** `consent_required` 로 돌려준다.
+  - **거부 문구** — 사이트 `messages` 덮어쓰기 → 콘솔이 실어 보낸 문구 → 기본 문구 순. 콘솔은 `invalid_file` · `value_too_long` 등에 이미 한국어 문구를 싣는다.
+  - **예외를 던지지 않는다** — `{ ok: true, submissionId } | { ok: false, reason, message }`.
+  - 유입 채널 · 기기는 전처럼 쿠키에서 읽어 함께 보낸다. `meta` 는 보내지 않는다.
+  - `form` 을 넘기면 다시 조회하지 않는다.
+- `SubmissionError` 를 내보낸다 (v0.16.1 에서 생긴 `createSubmission` 의 실패 타입 — `reason` · `userMessage`).
+- 타입 `FormSubmitResult` · `SubmitCmsFormOptions`.
+
+### 사이트 쪽에서 할 일
+**급하지 않다** — 기존 코드는 그대로 동작한다. 다만 order · 「타입별 몇 번째」로 짝짓는 사이트는 콘솔에서 동의 칸을 추가하거나 순서를 바꾸면
+**값이 조용히 다른 칸에 들어간다.** 콘솔 폼을 손대기 전에 아래로 옮긴다.
+
+1. 콘솔 필드 id 를 확인해 사이트에 `사이트 키 → 필드 id` 표를 둔다 (`fetchFormBySlug(slug)` 의 `fields[].id`, 형태 `field_<숫자>`).
+2. 제출 Server Action 을 `submitCmsForm(slug, data, { fieldMap, consent })` 로 바꾸고, 결과의 `message` 를 화면에 보인다.
+3. `meta`(pageUrl · userAgent)를 보내던 코드는 지운다 — 콘솔이 저장하지 않는다(v0.13.0).
+4. 첨부는 먼저 올린 뒤 `UploadedFile[]` 을 값으로 넘긴다 — 템플릿처럼 브라우저 직행(`issueUploadUrls` + `uploadFilesFromBrowser`)을 권한다.
+
+사이트별
+- **bishu-client-template** — `cms-actions.ts` 의 `submitForm` 본문을 `return submitCmsForm(formSlug, values)` 로 (결과 모양을 `{ success, error }` 로 바꿔 돌려주면 `FormRenderer` 는 그대로). `SUBMIT_ERROR_MESSAGES` 는 지운다. 동의 칸 값은 이미 `values[field.id] = true` 로 오므로 `consent` 옵션은 필요 없다.
+- **abba** — template 과 같게. 지금은 거부 문구 매핑이 없어 동의 미체크도 「제출 중 오류」로 보이고, `meta` 에 User-Agent 원문을 보낸다.
+- **designlab-bishu** — `src/lib/cms/data/contact.ts` 의 `ORDER_TO_KEY` 를 필드 id 표로, `saveContactToCms` 를 `submitCmsForm` 으로. 첨부는 서버 경유 `uploadFormFiles` 그대로 써도 된다.
+  헤더는 위젯 연결 작업에서 `next.config.ts` 를 `securityHeaders()` 로 옮기므로 v0.16.1 의 `X-XSS-Protection: 0` 이 그대로 닿는다.
+- **studio-bishu · changchanghan** — `inquiry-actions.ts` 의 「타입별 몇 번째」 매핑을 필드 id 표로, `headers()` · `meta` 제거.
+- **콘솔에서 동의 칸을 추가하는 것은 사이트가 `consent` 를 넘기도록 바뀐 뒤에.** 그 전에 추가하면 모든 제출이 `consent_required` 로 거부된다.
+
 ## v0.16.1 — 2026-10-21
 
 고친 것만 있다. 사이트 코드를 고치지 않아도 된다 — Renovate 가 Build 통과 후 자동 머지한다.

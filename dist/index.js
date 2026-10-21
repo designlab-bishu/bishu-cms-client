@@ -25,7 +25,8 @@ export { fetchActivePopups } from "./data/popups.js";
 export { fetchSiteConfig } from "./data/site-config.js";
 export { fetchReservationsByMonth, fetchReservationsByDate, } from "./data/reservations.js";
 // ── 쓰기 ──────────────────────────────────────────────
-export { createSubmission } from "./actions/submit.js";
+export { createSubmission, SubmissionError } from "./actions/submit.js";
+export { submitCmsForm } from "./actions/submit-form.js";
 export { uploadFormFiles, issueUploadUrls } from "./actions/upload.js";
 export { trackPopupEvent, incrementPostViewCount } from "./actions/track.js";
 export { getAttachmentUrl } from "./actions/download.js";
