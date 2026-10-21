@@ -20,6 +20,13 @@ export declare class CmsConfigError extends Error {
  * 설정 오류(환경변수 누락·인증 실패)는 로그로 분명히 남긴다.
  */
 export declare function fetchFromConsole<T>(params: Record<string, string>): Promise<T | null>;
+/** 콘솔 거부 응답 `{ error, message }` 에서 읽은 것 (콘솔 publicError · M-10) */
+export interface ConsoleErrorDetail {
+    /** 콘솔 사유 코드 (예: `consent_required` · `demo_readonly` · `rate_limited`) */
+    code?: string;
+    /** 방문자에게 그대로 보여줄 수 있는 한국어 문구 — 콘솔이 실어 보낸 경우만 */
+    message?: string;
+}
 /**
  * 콘솔의 쓰기 API 를 호출한다.
  *
@@ -29,7 +36,7 @@ export declare function fetchFromConsole<T>(params: Record<string, string>): Pro
 export declare function postToConsole<T>(body: Record<string, unknown>): Promise<{
     ok: true;
     data: T;
-} | {
+} | ({
     ok: false;
     reason: string;
-}>;
+} & ConsoleErrorDetail)>;

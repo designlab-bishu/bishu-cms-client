@@ -3,6 +3,27 @@
 사이트는 `github:designlab-bishu/bishu-cms-client#vX.Y.Z` 태그로 설치한다.
 응답 형태는 **더하기만 하고 빼지 않는다** (콘솔 API-P-30) — minor 올림은 사이트 코드를 고치지 않아도 동작한다.
 
+## v0.16.1 — 2026-10-21
+
+고친 것만 있다. 사이트 코드를 고치지 않아도 된다 — Renovate 가 Build 통과 후 자동 머지한다.
+
+### 고침
+- **보안 헤더 `X-XSS-Protection: 0`** — `securityHeaders()` 가 이제 내보낸다 (에이전시 글로벌 규칙).
+  구형 브라우저의 XSS 필터를 끈다 — 필터 자체가 정보 유출 통로가 된 사례가 있고, XSS 방어는 CSP 가 맡는다.
+- **제출 거부 사유가 사이트까지 온다** — 콘솔은 거부할 때 `{ error: "consent_required", message: "…" }` 를 돌려주는데
+  패키지가 본문을 버리고 `submission_failed:http_400` 만 던지고 있었다. 그래서 템플릿의 거부 문구 매핑(v0.15)이
+  한 번도 맞지 않았고 방문자는 늘 「제출 중 오류가 발생했습니다」만 봤다.
+  이제 `createSubmission()` 은 `submission_failed:consent_required` 처럼 **콘솔 사유 코드**를 던진다.
+  코드가 없거나 콘솔에 닿지 못하면 전처럼 `http_<상태>` · `network_error` · `config_error` 다.
+  던지는 값은 `SubmissionError`(`Error` 하위)이고 `reason` · `userMessage`(콘솔이 실어 보낸 방문자용 문구)를 갖는다.
+
+### 사이트 쪽에서 할 일
+**없다.** 단, 사이트마다 이렇게 달라진다.
+- template · abba · studio-bishu · changchanghan — `securityHeaders()` 를 써서 헤더가 바로 붙는다.
+- **designlab-bishu** — `next.config.ts` 의 자체 헤더 배열에 `X-XSS-Protection: 1; mode=block` 이 있어 **이번 수정이 닿지 않는다.**
+  사이트에서 `0` 으로 바꾸거나 `securityHeaders()` 로 옮긴다.
+- template — `SUBMIT_ERROR_MESSAGES` 매핑이 이제 실제로 맞는다 (동의 미체크 · 데모 거부 문구가 뜬다).
+
 ## v0.16.0 — 2026-10-15
 
 콘솔 리포트 기기별 문의율(FORM-P-183 · API-P-38)을 따른다. 뺀 것은 없다.
@@ -74,7 +95,7 @@
 
 ### 사이트 쪽에서 할 일
 패키지만 올리면 타입은 통과하지만 목록은 여전히 전부 그려진다. 템플릿(`bishu-client-template`) 의
-`src/app/boards/[boardSlug]/page.tsx`(`?page=N` 슬라이스) 와 `src/components/boards/Pagination.tsx` 를 맞춘다.
+`src/app/(sub)/boards/[boardSlug]/page.tsx`(`?page=N` 슬라이스) 와 `src/components/boards/Pagination.tsx` 를 맞춘다.
 
 ## v0.11.0 — 2026-09-14
 

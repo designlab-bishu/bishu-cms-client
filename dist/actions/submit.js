@@ -26,6 +26,25 @@ async function readSubmissionSource() {
     }
 }
 /**
+ * 제출 실패. `message` 는 `submission_failed:<사유>` — 사유는 콘솔 사유 코드
+ * (`consent_required` · `demo_readonly` · `rate_limited` …)이고, 콘솔이 코드를 싣지 않았거나
+ * 닿지 못했으면 `http_<상태>` · `network_error` · `config_error` 다 (v0.16.1~. 그 전에는 늘 `http_<상태>` 였다).
+ */
+export class SubmissionError extends Error {
+    reason;
+    userMessage;
+    constructor(
+    /** 사유 코드 */
+    reason, 
+    /** 콘솔이 실어 보낸 방문자용 문구 — 없을 수 있다 */
+    userMessage) {
+        super(`submission_failed:${reason}`);
+        this.reason = reason;
+        this.userMessage = userMessage;
+        this.name = "SubmissionError";
+    }
+}
+/**
  * 폼 제출.
  *
  * 폼은 **슬러그로 조회**한다. 사이트가 보낸 문서 ID 를 그대로 쓰면 임의 경로에
@@ -47,6 +66,6 @@ meta) {
         ...(source ? { source } : {}),
     });
     if (!res.ok)
-        throw new Error(`submission_failed:${res.reason}`);
+        throw new SubmissionError(res.code ?? res.reason, res.message);
     return res.data.submissionId;
 }

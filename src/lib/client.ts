@@ -100,6 +100,27 @@ export async function fetchFromConsole<T>(
   }
 }
 
+/** 콘솔 거부 응답 `{ error, message }` 에서 읽은 것 (콘솔 publicError · M-10) */
+export interface ConsoleErrorDetail {
+  /** 콘솔 사유 코드 (예: `consent_required` · `demo_readonly` · `rate_limited`) */
+  code?: string;
+  /** 방문자에게 그대로 보여줄 수 있는 한국어 문구 — 콘솔이 실어 보낸 경우만 */
+  message?: string;
+}
+
+/** 본문이 JSON 이 아니거나 모양이 다르면 빈 객체 — 사유는 `http_<상태>` 로 남는다 */
+function parseConsoleError(text: string): ConsoleErrorDetail {
+  try {
+    const parsed = JSON.parse(text) as { error?: unknown; message?: unknown };
+    const detail: ConsoleErrorDetail = {};
+    if (typeof parsed.error === "string" && /^[a-z0-9_]{1,64}$/.test(parsed.error)) detail.code = parsed.error;
+    if (typeof parsed.message === "string" && parsed.message.length <= 300) detail.message = parsed.message;
+    return detail;
+  } catch {
+    return {};
+  }
+}
+
 /**
  * 콘솔의 쓰기 API 를 호출한다.
  *
@@ -108,7 +129,7 @@ export async function fetchFromConsole<T>(
  */
 export async function postToConsole<T>(
   body: Record<string, unknown>
-): Promise<{ ok: true; data: T } | { ok: false; reason: string }> {
+): Promise<{ ok: true; data: T } | ({ ok: false; reason: string } & ConsoleErrorDetail)> {
   let baseUrl: string;
   let apiKey: string;
   let customerId: string;
@@ -141,7 +162,7 @@ export async function postToConsole<T>(
       console.error(
         `[cms-client] 쓰기 실패 ${res.status} (${body.action}): ${text.slice(0, 200)}`
       );
-      return { ok: false, reason: `http_${res.status}` };
+      return { ok: false, reason: `http_${res.status}`, ...parseConsoleError(text) };
     }
 
     return { ok: true, data: (await res.json()) as T };
