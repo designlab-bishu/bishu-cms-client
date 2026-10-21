@@ -77,6 +77,21 @@ export async function fetchFromConsole(params) {
         clearTimeout(timer);
     }
 }
+/** 본문이 JSON 이 아니거나 모양이 다르면 빈 객체 — 사유는 `http_<상태>` 로 남는다 */
+function parseConsoleError(text) {
+    try {
+        const parsed = JSON.parse(text);
+        const detail = {};
+        if (typeof parsed.error === "string" && /^[a-z0-9_]{1,64}$/.test(parsed.error))
+            detail.code = parsed.error;
+        if (typeof parsed.message === "string" && parsed.message.length <= 300)
+            detail.message = parsed.message;
+        return detail;
+    }
+    catch {
+        return {};
+    }
+}
 /**
  * 콘솔의 쓰기 API 를 호출한다.
  *
@@ -112,7 +127,7 @@ export async function postToConsole(body) {
         if (!res.ok) {
             const text = await res.text().catch(() => "");
             console.error(`[cms-client] 쓰기 실패 ${res.status} (${body.action}): ${text.slice(0, 200)}`);
-            return { ok: false, reason: `http_${res.status}` };
+            return { ok: false, reason: `http_${res.status}`, ...parseConsoleError(text) };
         }
         return { ok: true, data: (await res.json()) };
     }

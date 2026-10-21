@@ -159,6 +159,9 @@ export function securityHeaders(
   const headers = [
     { key: "X-Frame-Options", value: options.frameOptions ?? "DENY" },
     { key: "X-Content-Type-Options", value: "nosniff" },
+    // 구형 브라우저의 XSS 필터는 끈다 — 필터 자체가 정보 유출 통로가 된 사례가 있고,
+    // XSS 방어는 CSP 가 맡는다 (에이전시 글로벌 규칙 · v0.16.1)
+    { key: "X-XSS-Protection", value: "0" },
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
     {
       key: "Permissions-Policy",
