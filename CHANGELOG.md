@@ -32,7 +32,7 @@
 - **bishu-client-template** — `cms-actions.ts` 의 `submitForm` 본문을 `return submitCmsForm(formSlug, values)` 로 (결과 모양을 `{ success, error }` 로 바꿔 돌려주면 `FormRenderer` 는 그대로). `SUBMIT_ERROR_MESSAGES` 는 지운다. 동의 칸 값은 이미 `values[field.id] = true` 로 오므로 `consent` 옵션은 필요 없다.
 - **abba** — template 과 같게. 지금은 거부 문구 매핑이 없어 동의 미체크도 「제출 중 오류」로 보이고, `meta` 에 User-Agent 원문을 보낸다.
 - **designlab-bishu** — `src/lib/cms/data/contact.ts` 의 `ORDER_TO_KEY` 를 필드 id 표로, `saveContactToCms` 를 `submitCmsForm` 으로. 첨부는 서버 경유 `uploadFormFiles` 그대로 써도 된다.
-  또 `next.config.ts` 의 `X-XSS-Protection: 1; mode=block` → `0` (v0.16.1 참고).
+  헤더는 위젯 연결 작업에서 `next.config.ts` 를 `securityHeaders()` 로 옮기므로 v0.16.1 의 `X-XSS-Protection: 0` 이 그대로 닿는다.
 - **studio-bishu · changchanghan** — `inquiry-actions.ts` 의 「타입별 몇 번째」 매핑을 필드 id 표로, `headers()` · `meta` 제거.
 - **콘솔에서 동의 칸을 추가하는 것은 사이트가 `consent` 를 넘기도록 바뀐 뒤에.** 그 전에 추가하면 모든 제출이 `consent_required` 로 거부된다.
 
