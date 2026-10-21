@@ -30,7 +30,9 @@ export {
 } from "./data/reservations.js";
 
 // ── 쓰기 ──────────────────────────────────────────────
-export { createSubmission } from "./actions/submit.js";
+export { createSubmission, SubmissionError } from "./actions/submit.js";
+export { submitCmsForm } from "./actions/submit-form.js";
+export type { FormSubmitResult, SubmitCmsFormOptions } from "./actions/submit-form.js";
 export { uploadFormFiles, issueUploadUrls } from "./actions/upload.js";
 export type { UploadTicket } from "./actions/upload.js";
 export { trackPopupEvent, incrementPostViewCount } from "./actions/track.js";
