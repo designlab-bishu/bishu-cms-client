@@ -15,8 +15,12 @@
 const GA4_SCRIPT = ["https://www.googletagmanager.com"];
 const GA4_CONNECT = [
     "https://*.google-analytics.com",
+    // `*.` 는 맨 도메인을 포함하지 않는다 — GA4 가 analytics.google.com/g/collect 로도 보낸다 (2026-10-21 designlab-bishu)
+    "https://analytics.google.com",
     "https://*.analytics.google.com",
     "https://*.googletagmanager.com",
+    // Google 신호를 켠 속성의 수집
+    "https://stats.g.doubleclick.net",
 ];
 const GA4_IMG = ["https://www.googletagmanager.com", "https://*.google-analytics.com"];
 /** 팝업 이미지·첨부 등 Firebase Storage 서빙 도메인 */
