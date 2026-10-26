@@ -3,6 +3,18 @@
 사이트는 `github:designlab-bishu/bishu-cms-client#vX.Y.Z` 태그로 설치한다.
 응답 형태는 **더하기만 하고 빼지 않는다** (콘솔 API-P-30) — minor 올림은 사이트 코드를 고치지 않아도 동작한다.
 
+## v0.16.2 — 2026-10-22
+
+고친 것만 있다. 사이트 코드를 고치지 않아도 된다 — Renovate 가 Build 통과 후 자동 머지한다.
+
+### 고침
+- **CSP `connect-src` 에 GA4 수집 도메인 둘 추가** — `https://analytics.google.com` · `https://stats.g.doubleclick.net`.
+  `*.analytics.google.com` 은 맨 도메인을 포함하지 않아 GA4 가 `analytics.google.com/g/collect` 로 보내는 page_view 가 막혔다
+  (2026-10-21 designlab-bishu 프리뷰에서 확인). `stats.g.doubleclick.net` 은 Google 신호를 켠 속성의 수집이다.
+
+### 사이트 쪽에서 할 일
+**없다.** 이 둘을 `connectSrc` 로 직접 넣어 둔 사이트(designlab-bishu)는 그대로 두어도 무해하다 — 중복은 합쳐진다.
+
 ## v0.16.1 — 2026-10-21
 
 고친 것만 있다. 사이트 코드를 고치지 않아도 된다 — Renovate 가 Build 통과 후 자동 머지한다.

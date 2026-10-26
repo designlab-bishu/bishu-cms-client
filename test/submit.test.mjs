@@ -2,7 +2,7 @@
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { createSubmission, SubmissionError } from "../dist/actions/submit.js";
-import { securityHeaders } from "../dist/config/security-headers.js";
+import { securityHeaders, buildCsp } from "../dist/config/security-headers.js";
 
 const realFetch = globalThis.fetch;
 const realConsoleError = console.error;
@@ -85,4 +85,14 @@ test("보안 헤더 — X-XSS-Protection: 0", () => {
     headers.find((h) => h.key === "X-XSS-Protection"),
     { key: "X-XSS-Protection", value: "0" }
   );
+});
+
+test("CSP connect-src — GA4 맨 도메인 · Google 신호", () => {
+  const connect = buildCsp({ consoleUrl: "https://console.test" })
+    .split("; ")
+    .find((d) => d.startsWith("connect-src "))
+    .split(" ");
+  assert.ok(connect.includes("https://analytics.google.com"));
+  assert.ok(connect.includes("https://*.analytics.google.com"));
+  assert.ok(connect.includes("https://stats.g.doubleclick.net"));
 });
