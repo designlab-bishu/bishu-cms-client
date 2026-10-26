@@ -3,7 +3,7 @@
 사이트는 `github:designlab-bishu/bishu-cms-client#vX.Y.Z` 태그로 설치한다.
 응답 형태는 **더하기만 하고 빼지 않는다** (콘솔 API-P-30) — minor 올림은 사이트 코드를 고치지 않아도 동작한다.
 
-## v0.17.0 — 2026-10-21
+## v0.17.0 — 2026-10-26
 
 폼 제출 공용 함수를 더한다. 뺀 것 · 바뀐 것은 없다 — 패키지만 올려도 기존 제출은 그대로 동작한다.
 
@@ -35,6 +35,18 @@
   헤더는 위젯 연결 작업에서 `next.config.ts` 를 `securityHeaders()` 로 옮기므로 v0.16.1 의 `X-XSS-Protection: 0` 이 그대로 닿는다.
 - **studio-bishu · changchanghan** — `inquiry-actions.ts` 의 「타입별 몇 번째」 매핑을 필드 id 표로, `headers()` · `meta` 제거.
 - **콘솔에서 동의 칸을 추가하는 것은 사이트가 `consent` 를 넘기도록 바뀐 뒤에.** 그 전에 추가하면 모든 제출이 `consent_required` 로 거부된다.
+
+## v0.16.2 — 2026-10-22
+
+고친 것만 있다. 사이트 코드를 고치지 않아도 된다 — Renovate 가 Build 통과 후 자동 머지한다.
+
+### 고침
+- **CSP `connect-src` 에 GA4 수집 도메인 둘 추가** — `https://analytics.google.com` · `https://stats.g.doubleclick.net`.
+  `*.analytics.google.com` 은 맨 도메인을 포함하지 않아 GA4 가 `analytics.google.com/g/collect` 로 보내는 page_view 가 막혔다
+  (2026-10-21 designlab-bishu 프리뷰에서 확인). `stats.g.doubleclick.net` 은 Google 신호를 켠 속성의 수집이다.
+
+### 사이트 쪽에서 할 일
+**없다.** 이 둘을 `connectSrc` 로 직접 넣어 둔 사이트(designlab-bishu)는 그대로 두어도 무해하다 — 중복은 합쳐진다.
 
 ## v0.16.1 — 2026-10-21
 
