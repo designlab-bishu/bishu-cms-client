@@ -67,6 +67,30 @@ export async function uploadFormFiles(formData: FormData) {
 
 이렇게 두면 ① 어떤 동작을 브라우저에 노출할지 사이트가 통제하고 ② 제출 전 검증·알림 같은 커스터마이즈 지점이 생기며 ③ 번들러 엣지 케이스를 피한다.
 
+#### 폼 제출 — `submitCmsForm` (v0.17.0)
+
+폼 제출은 `submitCmsForm` 을 감싸 쓴다. 콘솔 필드와 **id 로** 짝짓고, 동의 칸을 채우고, 거부 사유를 방문자 문구로 돌려준다.
+예외를 던지지 않는다 — `{ ok: false, message }` 의 `message` 를 그대로 보이면 된다.
+
+```ts
+"use server";
+import { submitCmsForm } from "@designlab-bishu/cms-client";
+
+// 콘솔 정의로 폼을 그리는 사이트(템플릿) — values 키가 곧 콘솔 필드 id
+export async function submitForm(formSlug: string, values: Record<string, unknown>) {
+  return submitCmsForm(formSlug, values);
+}
+
+// 화면을 직접 짠 사이트 — 사이트 키 → 콘솔 필드 id 표를 둔다
+const INQUIRY_FIELDS = { name: "field_1723456789012", email: "field_1723456789013" };
+export async function submitInquiry(data: InquiryData, agreed: boolean) {
+  return submitCmsForm("inquiry", data, { fieldMap: INQUIRY_FIELDS, consent: agreed });
+}
+```
+
+필드 id 는 콘솔 폼 편집 화면의 필드 정의(`fetchFormBySlug`)에서 확인한다. 순서를 바꿔도 그대로지만, **칸을 지웠다 다시 만들면 바뀐다** —
+그때는 서버 로그에 `콘솔 정의에 없는 필드라 보내지 않았습니다: name → field_…` 가 남는다.
+
 ### 본문 렌더
 
 게시글 본문은 CMS 에서 HTML 로 온다. **반드시 정제 후 렌더할 것.**
@@ -112,7 +136,7 @@ securityHeaders({
 | 구분 | 함수 |
 |---|---|
 | 게시판 | `fetchBoards()` · `fetchBoardBySlug(slug)` · `fetchPosts(boardId)` · `fetchPost(boardId, postId)` |
-| 폼 | `fetchFormBySlug(slug)` · `createSubmission(formSlug, values, meta?)` · `uploadFormFiles(formData)` — 제출에는 `BishuWidgets` 가 적은 첫 진입 경로(유입 채널 · v0.14.0)와 기기 종류(mobile · pc · tablet · v0.16.0)가 자동으로 실린다 |
+| 폼 | `fetchFormBySlug(slug)` · `submitCmsForm(formSlug, values, options?)`(v0.17.0 · 권장) · `createSubmission(formSlug, values, meta?)` · `uploadFormFiles(formData)` — 제출에는 `BishuWidgets` 가 적은 첫 진입 경로(유입 채널 · v0.14.0)와 기기 종류(mobile · pc · tablet · v0.16.0)가 자동으로 실린다 |
 | 팝업 | `fetchActivePopups()` · `trackPopupEvent(type, popupId?)` |
 | 예약 | `fetchReservationsByMonth(year, month)` · `fetchReservationsByDate(dateStr)` |
 | 집계 | `incrementPostViewCount(boardId, postId)` |
